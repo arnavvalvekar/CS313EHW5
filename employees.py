@@ -114,13 +114,13 @@ class Employee(ABC):
             self.relationships[other.name] += 1
         else:
             self.relationships[other.name] -= 1
-            self.happiness -= 1
+            self.happiness = max(PERCENTAGE_MIN, self.happiness - 1)
 
     def daily_expense(self):
         """
         Sets the daily expense for employees
         """
-        self.happiness -= 1
+        self.happiness = max(PERCENTAGE_MIN, self.happiness - 1)
         self.savings -= DAILY_EXPENSE
 
     def __str__(self):
@@ -137,11 +137,11 @@ class Manager(Employee):
         self.performance += perf_change
 
         if perf_change <= 0:
-            self.happiness -= 1
+            self.happiness = max(PERCENTAGE_MIN, self.happiness - 1)
             for person in self.relationships:
                 self.relationships[person] -= 1
         else:
-            self.happiness += 1
+            self.happiness = min(PERCENTAGE_MAX, self.happiness + 1)
 
 
 class TemporaryEmployee(Employee):
@@ -153,9 +153,9 @@ class TemporaryEmployee(Employee):
         self.performance += perf_change
 
         if perf_change <= 0:
-            self.happiness -= 2
+            self.happiness = max(PERCENTAGE_MIN, self.happiness - 2)
         else:
-            self.happiness += 1
+            self.happiness = min(PERCENTAGE_MAX, self.happiness + 1)
 
     def interact(self, other):
         super().interact(other)
@@ -168,7 +168,7 @@ class TemporaryEmployee(Employee):
                 self.savings += MANAGER_BONUS
             elif other.happiness <= HAPPINESS_THRESHOLD:
                 self.salary //= 2
-                self.happiness -= 5
+                self.happiness = max(PERCENTAGE_MIN, self.happiness - 5)
 
         if self.salary <= 0:
             self.is_employed = False
@@ -183,7 +183,7 @@ class PermanentEmployee(Employee):
         self.performance += perf_change
 
         if perf_change >= 0:
-            self.happiness += 1
+            self.happiness = min(PERCENTAGE_MAX, self.happiness + 1)
 
     def interact(self, other):
         super().interact(other)
@@ -195,4 +195,4 @@ class PermanentEmployee(Employee):
             ):
                 self.savings += MANAGER_BONUS
             elif other.happiness <= HAPPINESS_THRESHOLD:
-                self.happiness -= 1
+                self.happiness = max(PERCENTAGE_MIN, self.happiness - 1)
