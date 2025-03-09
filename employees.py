@@ -42,7 +42,7 @@ class Employee(ABC):
         self.is_employed = True
         self.__name = name
         self.__manager = manager
-        self._performance = INITIAL_PERFORMANCE
+        self.performance = INITIAL_PERFORMANCE
         self._happiness = INITIAL_HAPPINESS
         self._salary = salary
 
@@ -65,11 +65,11 @@ class Employee(ABC):
         """
         Reads the performance of the employee
         """
-        return self._performance
+        return self.__performance
 
     @performance.setter
     def performance(self, value):
-        self._performance = max(PERCENTAGE_MIN, min(PERCENTAGE_MAX, value))
+        self.__performance = max(PERCENTAGE_MIN, min(PERCENTAGE_MAX, value))
 
     @property
     def happiness(self):
@@ -109,23 +109,23 @@ class Employee(ABC):
             self.relationships[other.name] = 0
 
         if self.relationships[other.name] > RELATIONSHIP_THRESHOLD:
-            self._happiness += 1
-        elif self._happiness >= HAPPINESS_THRESHOLD and other._happiness >= HAPPINESS_THRESHOLD:
+            self.happiness += 1
+        elif self.happiness >= HAPPINESS_THRESHOLD and other.happiness >= HAPPINESS_THRESHOLD:
             self.relationships[other.name] += 1
         else:
             self.relationships[other.name] -= 1
-            self._happiness = max(PERCENTAGE_MIN, self._happiness - 1)
+            self.happiness = max(PERCENTAGE_MIN, self.happiness - 1)
 
     def daily_expense(self):
         """
         Sets the daily expense for employees
         """
-        self._happiness = max(PERCENTAGE_MIN, self._happiness - 1)
+        self.happiness = max(PERCENTAGE_MIN, self.happiness - 1)
         self.savings -= DAILY_EXPENSE
 
     def __str__(self):
         return (f"{self.name}\n\tSalary: ${self.salary}\n\tSavings: ${self.savings}" +
-        f"\n\tHappiness: {self._happiness}%\n\tPerformance: {self.performance}%")
+        f"\n\tHappiness: {self.happiness}%\n\tPerformance: {self.performance}%")
 
 
 class Manager(Employee):
@@ -137,11 +137,11 @@ class Manager(Employee):
         self.performance += perf_change
 
         if perf_change <= 0:
-            self._happiness = max(PERCENTAGE_MIN, self._happiness - 1)
+            self.happiness = max(PERCENTAGE_MIN, self.happiness - 1)
             for person in self.relationships:
                 self.relationships[person] -= 1
         else:
-            self._happiness = min(PERCENTAGE_MAX, self._happiness + 1)
+            self.happiness = min(PERCENTAGE_MAX, self.happiness + 1)
 
 
 class TemporaryEmployee(Employee):
@@ -153,22 +153,22 @@ class TemporaryEmployee(Employee):
         self.performance += perf_change
 
         if perf_change <= 0:
-            self._happiness = max(PERCENTAGE_MIN, self._happiness - 2)
+            self.happiness = max(PERCENTAGE_MIN, self.happiness - 2)
         else:
-            self._happiness = min(PERCENTAGE_MAX, self._happiness + 1)
+            self.happiness = min(PERCENTAGE_MAX, self.happiness + 1)
 
     def interact(self, other):
         super().interact(other)
 
         if self.manager == other:
             if (
-                other._happiness > HAPPINESS_THRESHOLD
+                other.happiness > HAPPINESS_THRESHOLD
                 and self.performance >= TEMP_EMPLOYEE_PERFORMANCE_THRESHOLD
             ):
                 self.savings += MANAGER_BONUS
-            elif other._happiness <= HAPPINESS_THRESHOLD:
+            elif other.happiness <= HAPPINESS_THRESHOLD:
                 self.salary //= 2
-                self._happiness = max(PERCENTAGE_MIN, self._happiness - 5)
+                self.happiness = max(PERCENTAGE_MIN, self.happiness - 5)
 
         if self.salary <= 0:
             self.is_employed = False
@@ -183,16 +183,16 @@ class PermanentEmployee(Employee):
         self.performance += perf_change
 
         if perf_change >= 0:
-            self._happiness = min(PERCENTAGE_MAX, self._happiness + 1)
+            self.happiness = min(PERCENTAGE_MAX, self.happiness + 1)
 
     def interact(self, other):
         super().interact(other)
 
         if self.manager == other:
             if (
-                other._happiness > HAPPINESS_THRESHOLD
+                other.happiness > HAPPINESS_THRESHOLD
                 and self.performance > PERM_EMPLOYEE_PERFORMANCE_THRESHOLD
             ):
                 self.savings += MANAGER_BONUS
-            elif other._happiness <= HAPPINESS_THRESHOLD:
-                self._happiness = max(PERCENTAGE_MIN, self._happiness - 1)
+            elif other.happiness <= HAPPINESS_THRESHOLD:
+                self.happiness = max(PERCENTAGE_MIN, self.happiness - 1)
